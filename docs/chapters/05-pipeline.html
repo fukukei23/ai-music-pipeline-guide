@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>連携フロー — AI音楽パイプラインガイド</title>
+    <meta name="description" content="AI音楽パイプラインガイド — 連携フロー">
+    <meta property="og:title" content="連携フロー — AI音楽パイプラインガイド">
+    <meta property="og:description" content="AI音楽パイプラインガイド 連携フロー">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://fukukei23.github.io/ai-music-pipeline-guide/chapters/05-pipeline.html">
+    <meta property="og:image" content="https://fukukei23.github.io/ai-music-pipeline-guide/assets/ogp.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+    <header class="site-header">
+        <button class="menu-toggle" aria-label="メニュー" id="menuToggle">
+            <span></span><span></span><span></span>
+        </button>
+        <a href="../index.html" class="site-title">🎵 AI音楽パイプラインガイド</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="テーマ切替">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+        </button>
+    </header>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="../index.html">🏠 ホーム</a>
+        </div>
+        
+        <a href="00-overview.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🎵</span>
+            概要
+        </a>
+        
+        <a href="01-make-song.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🎼</span>
+            make-song
+        </a>
+        
+        <a href="02-reverse-engineer-song.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🔬</span>
+            reverse-engineer-song
+        </a>
+        
+        <a href="03-analyze-song.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">📊</span>
+            analyze-song
+        </a>
+        
+        <a href="04-video-prompt-spec.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🎬</span>
+            video-prompt-spec
+        </a>
+        
+        <a href="05-pipeline.html"
+           class="sidebar-link active">
+            <span class="sidebar-icon">🔗</span>
+            連携フロー
+        </a>
+        
+        <a href="06-decision-tree.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🌳</span>
+            使い分け判断木
+        </a>
+        
+    </nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="content">
+        <div class="chapter-nav-top">
+            
+            <a href="04-video-prompt-spec.html" class="nav-prev">← video-prompt-spec</a>
+            
+            
+            <a href="06-decision-tree.html" class="nav-next">使い分け判断木 →</a>
+            
+        </div>
+
+        <article class="chapter-body">
+            <h1>05 連携フロー — 4スキルの組み合わせ</h1>
+<div class="callout callout-info"><p>4つの専門スキルをどう繋ぐか。実例（yoen-night）と代表的なパイプラインパターン。</p></div>
+<hr />
+<h2>なぜ連携か</h2>
+<p>1つのAIで「作曲も分析も映像も」やると、どれも中途半端になる。<strong>得意なことだけを担当させる専門スキル</strong>を繋ぐことで、各工程の品質が上がり、再現性も安定する。</p>
+<h2>代表的パターン</h2>
+<h3>パターンA: ゼロから新曲を作って映像化まで</h3>
+<pre><code>make-song（作曲+歌詞）
+   ↓ 音源
+video-prompt-spec（映像プロンプト）
+   ↓
+画像AI/動画AI でMV完成
+</code></pre>
+<h3>パターンB: 既存曲を再現・学んで新曲へ</h3>
+<pre><code>既存曲 → reverse-engineer-song（定性プロンプト）
+       → analyze-song（定量データ）
+                ↓ 知見
+       make-song（「この型で」作曲）
+</code></pre>
+<h3>パターンC: 自作曲を自己分析して改善</h3>
+<pre><code>make-song（作曲）
+   ↓
+analyze-song（定量分析・phrase_repetition 検出）
+   ↓ 「Aメロ=サビ使い回し」等を検出
+make-song（修正再生成）
+</code></pre>
+<h2>実例: yoen-night</h2>
+<p>本パイプラインで実際に制作・検証した楽曲。</p>
+<ol>
+<li><strong>make-song</strong> で「yoen-night」を作曲（MiniMax music-2.6・85BPM指定）</li>
+<li><strong>analyze-song</strong> で定量分析 → 手動実証で「Aメロ/サビ 12音中10音一致」を検出（サビ使い回し発見）</li>
+<li>楽譜化（MuseScore）でAメロ vs サビ 2段組五線譜を生成</li>
+</ol>
+<div class="callout callout-warn"><p>⚠ この実証が analyze-song Phase 1a の先駆け。phrase_repetition 自動検出は Phase 1b で精度向上予定。</p></div>
+<h2>定性×定量の二重分析</h2>
+<p>既存曲を深く理解したい時は、両方を走らせる:</p>
+<ul>
+<li><strong>reverse-engineer-song</strong>: 「再現するためのプロンプト」（主観・言語）</li>
+<li><strong>analyze-song</strong>: 「客観的な数値データ」（BPM/キー/コード）</li>
+</ul>
+<p>言語と数値の両面から曲を捉えることで、make-song へ還元する知見が立体的になる。</p>
+
+        </article>
+
+        <nav class="chapter-nav-bottom">
+            
+            <a href="04-video-prompt-spec.html" class="nav-card prev">
+                <span class="nav-label">← 前の章</span>
+                <span class="nav-title">🎬 video-prompt-spec</span>
+            </a>
+            
+            
+            <a href="06-decision-tree.html" class="nav-card next">
+                <span class="nav-label">次の章 →</span>
+                <span class="nav-title">🌳 使い分け判断木</span>
+            </a>
+            
+        </nav>
+    </main>
+
+    <footer class="site-footer">
+        <p>AI音楽パイプラインガイド — <a href="https://github.com/fukukei23/ai-music-pipeline-guide">GitHub</a>
+         · <a href="https://fukukei23.github.io/make-song-guide/">make-song Guide</a>
+         · <a href="https://fukukei23.github.io/guides/">技術ガイド集</a>
+         · <a href="https://fukukei23.github.io/">fukukei23</a></p>
+        <p class="site-version">v1.1 · 2026.06.20</p>
+    </footer>
+
+    <script src="../assets/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default',
+            themeVariables: { fontSize: '14px' }
+        });
+    </script>
+</body>
+</html>

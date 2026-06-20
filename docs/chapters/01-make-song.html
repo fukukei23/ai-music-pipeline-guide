@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>make-song — AI音楽パイプラインガイド</title>
+    <meta name="description" content="AI音楽パイプラインガイド — make-song">
+    <meta property="og:title" content="make-song — AI音楽パイプラインガイド">
+    <meta property="og:description" content="AI音楽パイプラインガイド make-song">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://fukukei23.github.io/ai-music-pipeline-guide/chapters/01-make-song.html">
+    <meta property="og:image" content="https://fukukei23.github.io/ai-music-pipeline-guide/assets/ogp.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+    <header class="site-header">
+        <button class="menu-toggle" aria-label="メニュー" id="menuToggle">
+            <span></span><span></span><span></span>
+        </button>
+        <a href="../index.html" class="site-title">🎵 AI音楽パイプラインガイド</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="テーマ切替">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+        </button>
+    </header>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="../index.html">🏠 ホーム</a>
+        </div>
+        
+        <a href="00-overview.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🎵</span>
+            概要
+        </a>
+        
+        <a href="01-make-song.html"
+           class="sidebar-link active">
+            <span class="sidebar-icon">🎼</span>
+            make-song
+        </a>
+        
+        <a href="02-reverse-engineer-song.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🔬</span>
+            reverse-engineer-song
+        </a>
+        
+        <a href="03-analyze-song.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">📊</span>
+            analyze-song
+        </a>
+        
+        <a href="04-video-prompt-spec.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🎬</span>
+            video-prompt-spec
+        </a>
+        
+        <a href="05-pipeline.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🔗</span>
+            連携フロー
+        </a>
+        
+        <a href="06-decision-tree.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🌳</span>
+            使い分け判断木
+        </a>
+        
+    </nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="content">
+        <div class="chapter-nav-top">
+            
+            <a href="00-overview.html" class="nav-prev">← 概要</a>
+            
+            
+            <a href="02-reverse-engineer-song.html" class="nav-next">reverse-engineer-song →</a>
+            
+        </div>
+
+        <article class="chapter-body">
+            <h1>01 make-song — 汎用作曲エンジン</h1>
+<div class="callout callout-info"><p>任意ジャンル・テーマで曲＋歌詞を制作する。曲先（メロディ淘汰型）でキャッチーなサビを確定してから歌詞を載せる、ヒット曲プロセス準拠。</p></div>
+<hr />
+<h2>できること</h2>
+<ul>
+<li>任意のジャンル・テーマでオリジナル曲を制作</li>
+<li>曲先方式: サビメロディを複数生成→人間が選別→変奏淘汰で確定</li>
+<li>歌詞の載せまで一気通貫</li>
+<li>主軸AI: <strong>MiniMax music-2.6</strong></li>
+</ul>
+<h2>トリガー</h2>
+<p>「曲作って」「作曲して」「音楽作って」「歌作って」「/make-song」</p>
+<div class="callout callout-info"><p>テーマ修飾付き（「武将で曲作って」=sangoku-song、「サイバー和で」=cyber-wa-song）は専用スキルが優先。</p></div>
+<h2>曲先プロセス（核心）</h2>
+<p>ヒット曲は「先にメロディが決まる」。make-song はこのプロセスを再現:</p>
+<ol>
+<li>サビメロディを複数生成</li>
+<li>人間が選別（淘汰）</li>
+<li>変奏で更に絞り込み→確定</li>
+<li>確定メロディに歌詞を載せる</li>
+</ol>
+<p>メロディ淘汰を経ることで「耳に残るサビ」を確率的に引き当てる。</p>
+<h2>知見アーキテクチャ（4層×5象限）</h2>
+<p>AI依存度で知見を4層に分離。AI（MiniMax）が替わっても Layer 2 だけ差し替えれば済む設計。</p>
+<ul>
+<li><strong>Layer 1</strong>: AI不変の音楽理論（コード進行・スケール・構造）</li>
+<li><strong>Layer 2</strong>: AI依存の実測知見（MiniMax の パラメータ・声質・圧縮率）</li>
+<li><strong>Layer 3</strong>: プロンプト技法</li>
+<li><strong>Layer 4</strong>: 実践フロー</li>
+</ul>
+<p>詳細は<a href="https://fukukei23.github.io/make-song-guide/">AI作曲エンジン教科書</a>（姉妹サイト）で公開。</p>
+<h2>他スキルとの連携</h2>
+<ul>
+<li><strong>上流</strong>: reverse-engineer-song / analyze-song の知見を参照して「近い型」で作曲</li>
+<li><strong>下流</strong>: video-prompt-spec で完成曲を映像化</li>
+</ul>
+<h2>成果物の保存</h2>
+<p><code>~/projects/&lt;リポジトリ&gt;/songs/&lt;曲名&gt;/</code> 配下。<code>~/Music/</code> には保存しない（固定ルール）。</p>
+
+        </article>
+
+        <nav class="chapter-nav-bottom">
+            
+            <a href="00-overview.html" class="nav-card prev">
+                <span class="nav-label">← 前の章</span>
+                <span class="nav-title">🎵 概要</span>
+            </a>
+            
+            
+            <a href="02-reverse-engineer-song.html" class="nav-card next">
+                <span class="nav-label">次の章 →</span>
+                <span class="nav-title">🔬 reverse-engineer-song</span>
+            </a>
+            
+        </nav>
+    </main>
+
+    <footer class="site-footer">
+        <p>AI音楽パイプラインガイド — <a href="https://github.com/fukukei23/ai-music-pipeline-guide">GitHub</a>
+         · <a href="https://fukukei23.github.io/make-song-guide/">make-song Guide</a>
+         · <a href="https://fukukei23.github.io/guides/">技術ガイド集</a>
+         · <a href="https://fukukei23.github.io/">fukukei23</a></p>
+        <p class="site-version">v1.1 · 2026.06.20</p>
+    </footer>
+
+    <script src="../assets/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default',
+            themeVariables: { fontSize: '14px' }
+        });
+    </script>
+</body>
+</html>

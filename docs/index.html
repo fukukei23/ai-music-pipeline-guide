@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI音楽制作パイプラインガイド</title>
+    <meta name="description" content="作曲・分析・映像化を4スキル連携でつなぐAI音楽制作パイプラインの実践ガイド">
+    <meta property="og:title" content="AI音楽制作パイプラインガイド">
+    <meta property="og:description" content="作曲・分析・映像化を4スキル連携でつなぐAI音楽制作パイプラインの実践ガイド">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fukukei23.github.io/ai-music-pipeline-guide/">
+    <meta property="og:image" content="https://fukukei23.github.io/ai-music-pipeline-guide/assets/ogp.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body class="index-page">
+    <header class="site-header">
+        <span class="site-title">🎵 AI音楽パイプラインガイド</span>
+        <button class="theme-toggle" id="themeToggle" aria-label="テーマ切替">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+        </button>
+    </header>
+
+    <main class="content">
+        <section class="hero">
+            <h1>AI音楽制作パイプラインガイド</h1>
+            <p>AIと人間が協働するための<br>Single Source of Truth 設計・運用ガイド</p>
+        </section>
+
+        <section class="chapter-grid">
+            
+            <a href="chapters/00-overview.html" class="chapter-card">
+                <div class="card-icon">🎵</div>
+                <div class="card-number">第00章</div>
+                <h2 class="card-title">概要</h2>
+                <p class="card-desc">AI音楽パイプラインの全体像・4スキルの位置づけ・定性vs定量</p>
+            </a>
+            
+            <a href="chapters/01-make-song.html" class="chapter-card">
+                <div class="card-icon">🎼</div>
+                <div class="card-number">第01章</div>
+                <h2 class="card-title">make-song</h2>
+                <p class="card-desc">汎用作曲エンジン・曲先サビ淘汰型・MiniMax music-2.6</p>
+            </a>
+            
+            <a href="chapters/02-reverse-engineer-song.html" class="chapter-card">
+                <div class="card-icon">🔬</div>
+                <div class="card-number">第02章</div>
+                <h2 class="card-title">reverse-engineer-song</h2>
+                <p class="card-desc">既存曲の定性RE・Gemini API・3モダリティのプロンプト仕様書</p>
+            </a>
+            
+            <a href="chapters/03-analyze-song.html" class="chapter-card">
+                <div class="card-icon">📊</div>
+                <div class="card-number">第03章</div>
+                <h2 class="card-title">analyze-song</h2>
+                <p class="card-desc">楽曲定量分析・BPM/キー/コード/phrase_repetition・Phase1a</p>
+            </a>
+            
+            <a href="chapters/04-video-prompt-spec.html" class="chapter-card">
+                <div class="card-icon">🎬</div>
+                <div class="card-number">第04章</div>
+                <h2 class="card-title">video-prompt-spec</h2>
+                <p class="card-desc">映像プロンプト仕様書・4構造・音源→映像</p>
+            </a>
+            
+            <a href="chapters/05-pipeline.html" class="chapter-card">
+                <div class="card-icon">🔗</div>
+                <div class="card-number">第05章</div>
+                <h2 class="card-title">連携フロー</h2>
+                <p class="card-desc">4スキルの組み合わせ・実例（yoen-night）</p>
+            </a>
+            
+            <a href="chapters/06-decision-tree.html" class="chapter-card">
+                <div class="card-icon">🌳</div>
+                <div class="card-number">第06章</div>
+                <h2 class="card-title">使い分け判断木</h2>
+                <p class="card-desc">目的別スキル選択チャート</p>
+            </a>
+            
+        </section>
+
+        <section class="features">
+            <h2>📖 このガイドの特徴</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <span class="feature-icon">🎵</span>
+                    <h3>設計哲学から</h3>
+                    <p>作曲から映像化まで、4つのAIスキルを連携させる実践ガイド</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🤖</span>
+                    <h3>AI協働特化</h3>
+                    <p>make-song/analyze-song等のAI音楽スキルを連携させる実践設計</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📱</span>
+                    <h3>モバイル対応</h3>
+                    <p>スマホからいつでも見返せるレスポンシブデザイン</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🌙</span>
+                    <h3>ダークモード</h3>
+                    <p>目に優しいテーマ切替対応</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>AI音楽パイプラインガイド — <a href="https://github.com/fukukei23/ai-music-pipeline-guide">GitHub</a>
+         · <a href="https://fukukei23.github.io/make-song-guide/">make-song Guide</a>
+         · <a href="https://fukukei23.github.io/guides/">技術ガイド集</a>
+         · <a href="https://fukukei23.github.io/">fukukei23</a></p>
+        <p class="site-version">v1.1 · 2026.06.20</p>
+    </footer>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>

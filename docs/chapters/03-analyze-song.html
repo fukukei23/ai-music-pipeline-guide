@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>analyze-song — AI音楽パイプラインガイド</title>
+    <meta name="description" content="AI音楽パイプラインガイド — analyze-song">
+    <meta property="og:title" content="analyze-song — AI音楽パイプラインガイド">
+    <meta property="og:description" content="AI音楽パイプラインガイド analyze-song">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://fukukei23.github.io/ai-music-pipeline-guide/chapters/03-analyze-song.html">
+    <meta property="og:image" content="https://fukukei23.github.io/ai-music-pipeline-guide/assets/ogp.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+    <header class="site-header">
+        <button class="menu-toggle" aria-label="メニュー" id="menuToggle">
+            <span></span><span></span><span></span>
+        </button>
+        <a href="../index.html" class="site-title">🎵 AI音楽パイプラインガイド</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="テーマ切替">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+        </button>
+    </header>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="../index.html">🏠 ホーム</a>
+        </div>
+        
+        <a href="00-overview.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🎵</span>
+            概要
+        </a>
+        
+        <a href="01-make-song.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🎼</span>
+            make-song
+        </a>
+        
+        <a href="02-reverse-engineer-song.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🔬</span>
+            reverse-engineer-song
+        </a>
+        
+        <a href="03-analyze-song.html"
+           class="sidebar-link active">
+            <span class="sidebar-icon">📊</span>
+            analyze-song
+        </a>
+        
+        <a href="04-video-prompt-spec.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🎬</span>
+            video-prompt-spec
+        </a>
+        
+        <a href="05-pipeline.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🔗</span>
+            連携フロー
+        </a>
+        
+        <a href="06-decision-tree.html"
+           class="sidebar-link">
+            <span class="sidebar-icon">🌳</span>
+            使い分け判断木
+        </a>
+        
+    </nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="content">
+        <div class="chapter-nav-top">
+            
+            <a href="02-reverse-engineer-song.html" class="nav-prev">← reverse-engineer-song</a>
+            
+            
+            <a href="04-video-prompt-spec.html" class="nav-next">video-prompt-spec →</a>
+            
+        </div>
+
+        <article class="chapter-body">
+            <h1>03 analyze-song — 楽曲定量分析</h1>
+<div class="callout callout-info"><p>音源から BPM/キー/コード進行/メロディ輪郭/音域/phrase_repetition を数値抽出し、features.json + 楽譜PNG/PDF + report.md を出力。定性（reverse-engineer-song）とは完全独立の定量分析専用。</p></div>
+<hr />
+<h2>できること</h2>
+<p>音源（YouTube URL / ローカル MP3）から以下を<strong>数値</strong>で抽出:</p>
+<ul>
+<li><strong>BPM</strong>・テンポ信頼度（librosa）</li>
+<li><strong>キー</strong>・スケール・信頼度（music21）</li>
+<li><strong>コード進行</strong>（music21 chordify）</li>
+<li><strong>メロディ音域</strong>（music21）</li>
+<li><strong>phrase_repetition</strong>: 前半/後半の音程同一性検出</li>
+<li><strong>structure</strong>: 曲構成</li>
+</ul>
+<h2>トリガー</h2>
+<p>「楽曲分析して」「曲を定量分析」「BPM/コード抽出」「名曲っぽさ分析」「/analyze-song」</p>
+<h2>分析パイプライン（Phase 1a）</h2>
+<pre><code>音源(yt-dlp/ローカル)
+ → librosa(BPM/duration)
+ → basic_pitch(MP3→MIDI・onnxruntime)
+ → music21(キー/コード/メロディ/phrase_repetition/structure)
+ → MuseScore(楽譜PNG/PDF)
+ → features.json + report.md
+</code></pre>
+<p>7モジュール構成・CLI で一括実行。</p>
+<h2>出力（<code>analysis/</code> 配下）</h2>
+<ul>
+<li><code>features.json</code> — 全特徴量（機械用）</li>
+<li><code>score/full-1.png</code> <code>score/full.pdf</code> — 五線譜（MuseScore環境依存）</li>
+<li><code>report.md</code> — サマリ＋工程ログ（人間用）</li>
+</ul>
+<h2>Phase 1a の既知制限（改善予定）</h2>
+<p>実測で判明した3つの制限。Phase 1b（Demucs音源分離導入）で改善対象。</p>
+<div class="callout callout-warn"><p>⚠ <strong>BPM 精度</strong>: librosa 推定限界で、生成指定BPMと乖離する場合あり（例: 指定85→推定112・4/3倍誤差）。</p></div>
+<div class="callout callout-warn"><p>⚠ <strong>phrase_repetition 精度</strong>: basic_pitch 生MIDIのノイズ（ボーカル+バック+ノイズ混入）で一致率が低くなる。メロディ単離（Phase1b Demucs）で改善。</p></div>
+<div class="callout callout-warn"><p>⚠ <strong>楽譜PNG</strong>: MuseScore AppImage が WSL 環境依存で segfault する場合あり（features.json は正常生成）。</p></div>
+<h2>ロードマップ</h2>
+<ul>
+<li><strong>1a</strong> ✅ 音源取得+分析エンジン（librosa/basic_pitch/music21・Demucs無し）</li>
+<li><strong>1b</strong> Demucs音源分離で精度UP</li>
+<li><strong>2</strong> 歴史的名曲特徴量DB構築</li>
+<li><strong>3</strong> 照合エンジン + make-song 連携（「名曲っぽさ」判定）</li>
+</ul>
+<h2>連携</h2>
+<ul>
+<li>定量データ → make-song の作曲参照（Phase 3・名曲DB）</li>
+<li>定性は reverse-engineer-song で（役割分離）</li>
+</ul>
+
+        </article>
+
+        <nav class="chapter-nav-bottom">
+            
+            <a href="02-reverse-engineer-song.html" class="nav-card prev">
+                <span class="nav-label">← 前の章</span>
+                <span class="nav-title">🔬 reverse-engineer-song</span>
+            </a>
+            
+            
+            <a href="04-video-prompt-spec.html" class="nav-card next">
+                <span class="nav-label">次の章 →</span>
+                <span class="nav-title">🎬 video-prompt-spec</span>
+            </a>
+            
+        </nav>
+    </main>
+
+    <footer class="site-footer">
+        <p>AI音楽パイプラインガイド — <a href="https://github.com/fukukei23/ai-music-pipeline-guide">GitHub</a>
+         · <a href="https://fukukei23.github.io/make-song-guide/">make-song Guide</a>
+         · <a href="https://fukukei23.github.io/guides/">技術ガイド集</a>
+         · <a href="https://fukukei23.github.io/">fukukei23</a></p>
+        <p class="site-version">v1.1 · 2026.06.20</p>
+    </footer>
+
+    <script src="../assets/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default',
+            themeVariables: { fontSize: '14px' }
+        });
+    </script>
+</body>
+</html>
